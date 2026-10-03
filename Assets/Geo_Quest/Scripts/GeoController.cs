@@ -11,11 +11,19 @@ public class Geo_Controller : MonoBehaviour
 
     int Var3 = 3;
 
+    private Rigidbody2D rb;
+
+    // The Start is called before the first frame update
+
     void Start()
     {
+
+        rb = GetComponent<Rigidbody2D>();
+
         Debug.Log(Var2 + "World");
         Var2 = "Goodbye";
         Debug.Log(Var2 + "TEXT");
+
     }
 
     // Update is called once per frame
