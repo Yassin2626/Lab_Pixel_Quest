@@ -523,13 +523,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364064264}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.23391613, w: 0.9722568}
-  m_LocalPosition: {x: -9.27, y: -3.03, z: 0}
-  m_LocalScale: {x: 4.9053288, y: 0.4600384, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.5003166, w: 0.8658426}
+  m_LocalPosition: {x: -8.51, y: -2.55, z: 0}
+  m_LocalScale: {x: 4.9053288, y: 0.80713737, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -27.055}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -60.042}
 --- !u!1 &1018547780
 GameObject:
   m_ObjectHideFlags: 0
@@ -802,7 +802,7 @@ Transform:
   m_GameObject: {fileID: 1185709788}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.82, y: 4.02, z: 0}
+  m_LocalPosition: {x: 1.44, y: -4.33, z: 0}
   m_LocalScale: {x: 17.202675, y: 0.4776146, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1268,8 +1268,8 @@ AreaEffector2D:
     serializedVersion: 2
     m_Bits: 4294967295
   m_UseGlobalAngle: 0
-  m_ForceAngle: 180
-  m_ForceMagnitude: 1901.34
+  m_ForceAngle: 90
+  m_ForceMagnitude: 100
   m_ForceVariation: 0
   m_ForceTarget: 0
   m_Drag: 0
