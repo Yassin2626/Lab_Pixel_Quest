@@ -31,7 +31,7 @@ public class Geo_Controller : MonoBehaviour
     {
         Debug.Log(Var3);
         Var3++;
-
+        /*
         // Continuous movement along the X axis
         transform.position += new Vector3(0.005f, 0, 0);
 
@@ -54,6 +54,7 @@ public class Geo_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D))
         {
             transform.position += new Vector3(1, 0, 0);
+        */
+
         }
     }
-}
