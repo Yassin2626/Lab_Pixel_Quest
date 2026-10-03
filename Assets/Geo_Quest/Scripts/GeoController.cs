@@ -32,6 +32,10 @@ public class Geo_Controller : MonoBehaviour
         Debug.Log(Var3);
         Var3++;
 
+
+        rb.velocity = Vector2.left;
+
+
         rb.velocity += new Vector2(-1, rb.velocity.y);
 
         /*
