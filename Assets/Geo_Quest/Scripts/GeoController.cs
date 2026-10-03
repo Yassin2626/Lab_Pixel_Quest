@@ -32,7 +32,7 @@ public class Geo_Controller : MonoBehaviour
         Debug.Log(Var3);
         Var3++;
 
-        rb.velocity += new Vector2(-1, rb.velocity.y)
+        rb.velocity += new Vector2(-1, rb.velocity.y);
 
         /*
         // Continuous movement along the X axis
