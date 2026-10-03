@@ -23,5 +23,14 @@ public class Geo_Controller : MonoBehaviour
     {
         Debug.Log(Var3);
         Var3++;
+
+        // This addssss a 0.005 units along the X axis every sngle frame to move the object right for inf time.
+        transform.position += new Vector3(0.005f, 0, 0);
+
+        // Detects when the W key is pressed once and sets position
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            transform.position = new Vector3(0, 1, 0);
+        }
     }
 }
