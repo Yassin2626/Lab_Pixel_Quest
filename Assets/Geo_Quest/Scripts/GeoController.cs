@@ -24,13 +24,28 @@ public class Geo_Controller : MonoBehaviour
         Debug.Log(Var3);
         Var3++;
 
-        // This addssss a 0.005 units along the X axis every sngle frame to move the object right for inf time.
+        // Continuous movement along the X axis
         transform.position += new Vector3(0.005f, 0, 0);
 
-        // Detects when the W key is pressed once and sets position
+        // WASD Movement Controls
         if (Input.GetKeyDown(KeyCode.W))
         {
-            transform.position = new Vector3(0, 1, 0);
+            transform.position += new Vector3(0, 1, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            transform.position += new Vector3(0, -1, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            transform.position += new Vector3(-1, 0, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            transform.position += new Vector3(1, 0, 0);
         }
     }
 }
