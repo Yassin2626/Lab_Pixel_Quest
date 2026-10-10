@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// The class name MUST match the file name (GeoController.cs)
+
 public class GeoController : MonoBehaviour
 {
     // ---- Variables (Lesson: Variables & Scope) ----
     private string Var2 = "Hello ";   // global variable (declared in the class, used by every method)
 
-    public int speed = 5;                        // how fast the player moves (shown in the Inspector)
-    public string nextLevel = "GeoLevel_2";      // scene to load when the player touches "Finish"
+    public int speed = 5;                        // how fast the player moves
+    public string nextLevel = "Geo_Quest_Scene_2";      // scene to load when the player finishes that level
 
     // ---- Components ----
     private Rigidbody2D rb;
