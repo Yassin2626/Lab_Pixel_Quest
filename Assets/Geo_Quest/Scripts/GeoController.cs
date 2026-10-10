@@ -9,16 +9,14 @@ public class GeoController : MonoBehaviour
     // ---- Variables (Lesson: Variables & Scope) ----
     private string Var2 = "Hello ";   // global variable (declared in the class, used by every method)
 
-    public int speed = 5;                        // how fast the player moves
-    public string nextLevel = "Geo_Quest_Scene_2";      // scene to load when the player finishes that level
+    public int speed = 5;                        
+    public string nextLevel = "Level_2";      
 
     // ---- Components ----
     private Rigidbody2D rb;
 
-    // Start runs once when the game begins
     void Start()
     {
-        // Connect to the Rigidbody2D component on this object
         rb = GetComponent<Rigidbody2D>();
 
         // Challenge: print the global variable + a local variable
