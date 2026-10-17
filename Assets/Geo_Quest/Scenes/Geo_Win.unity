@@ -389,8 +389,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\t\t\t\tYOU WIN! \n\nYou finished every level of Geo Quest. Press SPACE
-    to play again, or wait a few seconds and it will restart"
+  m_text: YOU WIN!   You finished every level of Geo Quest. Press SPACE to play again,
+    or wait a few seconds and it will restart
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
