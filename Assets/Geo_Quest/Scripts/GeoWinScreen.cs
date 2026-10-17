@@ -4,27 +4,36 @@ using UnityEngine.SceneManagement;
 // ============================================================================
 //  Geo Quest - Win Screen
 // ----------------------------------------------------------------------------
-//  Sits on a tiny object in the Geo_Win scene. Press Space / R to jump back to
-//  the first level. Nothing is spawned here either.
+//  This sits on a small empty object in the Geo_Win scene.
+//
+//  After you win the last level the game waits a few seconds and then starts
+//  again from the first level. You can also press SPACE to restart right away.
+//
+//  Nothing is created here either.
 // ============================================================================
 public class GeoWinScreen : MonoBehaviour
 {
-    public string firstLevel = "Level_1";
+    public string firstLevel = "Level_1";   // the level we restart the game on
+    public float restartAfter = 8f;         // seconds before it restarts by itself
+
+    void Start()
+    {
+        // Call RestartGame() once, after "restartAfter" seconds.
+        Invoke("RestartGame", restartAfter);
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)
-            || Input.GetKeyDown(KeyCode.R)
-            || Input.GetKeyDown(KeyCode.Return))
+        // Or let the player restart straight away with SPACE.
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (Application.CanStreamedLevelBeLoaded(firstLevel))
-            {
-                SceneManager.LoadScene(firstLevel);
-            }
-            else
-            {
-                Debug.LogWarning("Scene '" + firstLevel + "' is not in File > Build Settings yet.");
-            }
+            RestartGame();
         }
+    }
+
+    // Load the first level again, so the game starts over.
+    void RestartGame()
+    {
+        SceneManager.LoadScene(firstLevel);
     }
 }

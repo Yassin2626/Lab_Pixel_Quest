@@ -4,212 +4,127 @@ using UnityEngine.SceneManagement;
 // ============================================================================
 //  Geo Quest - Player Controller
 // ----------------------------------------------------------------------------
-//  Handles the core mechanics of the game:
-//      * Movement .................. A / D  or  Left / Right Arrow
-//      * Jumping ................... Space  (or W / Up Arrow)
-//      * Wall interaction .......... high friction lets the player cling + slide
-//      * Dying to spikes ........... anything tagged "Death"
-//      * Level progression ......... touching the goal (tag "Finish")
-//      * Falling off the world ..... treated as a death
+//  This script does four things:
+//      1. Move the player left and right with A / D (or the arrow keys)
+//      2. Jump with SPACE (or W / Up arrow)
+//      3. Turn the player's picture around so it faces the way it walks
+//      4. Restart the level if we hit a spike or fall off the world,
+//         and load the next level when we touch the goal
 //
-//  NOTE: this script NEVER creates / spawns objects. Every spike, bounce pad,
-//  goal, belt, water pool ... is placed by hand inside the .unity scene files.
+//  IMPORTANT: this script never creates any objects. Every spike, bounce pad,
+//  goal, belt and water pool is already sitting inside the scene file.
 // ============================================================================
 public class GeoController : MonoBehaviour
 {
-    // ---- Variables (Lesson: Variables & Scope) ----
-    [Header("Movement")]
-    public int speed = 5;                 // horizontal speed in units per second
-    public float acceleration = 45f;      // how quickly the player reaches that speed
-    public float brake = 12f;             // how quickly the player slows down when no key is held
-    public float jumpForce = 11f;         // upward speed applied when jumping
-    public float maxFallSpeed = 18f;      // terminal velocity so falling stays readable
-    public float wallSlideSpeed = 2f;     // how slowly the player slides down a wall
+    public int speed = 5;                  // how fast the player runs
+    public float jumpForce = 11f;          // how high the player jumps
+    public float fallLimit = -8f;          // fall below this height and you die
+    public string nextLevel = "Level_2";   // level to load when we touch the goal
 
-    [Header("Level")]
-    public string nextLevel = "Level_2";  // scene loaded when the goal is touched
-    public float killY = -12f;            // fall below this and the player dies
+    private Rigidbody2D rb;                // the physics body of the player
+    private BoxCollider2D box;             // the invisible box around the player
+    private SpriteRenderer sprite;         // the player's picture
 
-    // ---- Components ----
-    private Rigidbody2D rb;
-    private BoxCollider2D box;
-
-    // ---- State ----
-    private bool grounded;
-    private bool touchingWall;
-    private bool leavingLevel;      // stops the level loading twice in one frame
+    private bool leaving;                  // stops us dying / winning twice
 
     void Start()
     {
+        // Find the parts that are already on the player.
         rb = GetComponent<Rigidbody2D>();
         box = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
     }
 
-    // Update runs every frame
     void Update()
     {
-        if (rb == null) return;
+        // ---- 1. Read the keyboard -------------------------------------------
+        // "Horizontal" is -1 when we hold left, 0 when we do nothing,
+        // and +1 when we hold right.
+        float move = Input.GetAxisRaw("Horizontal");
 
-        // ---- Movement with the Input Manager ----
-        // Horizontal axis = -1 (A / Left Arrow), 0 (nothing), 1 (D / Right Arrow)
-        float xInput = Input.GetAxisRaw("Horizontal");
+        bool jumpPressed = Input.GetKeyDown(KeyCode.Space)
+                        || Input.GetKeyDown(KeyCode.W)
+                        || Input.GetKeyDown(KeyCode.UpArrow);
 
-        // Are we standing on something / leaning on a wall?
-        grounded = GroundCheck();
-        touchingWall = WallCheck();
+        // ---- 2. Move left and right -----------------------------------------
+        // We only set the speed while a key is held down. When the player lets
+        // go we leave the speed alone, which is what lets the conveyor belt
+        // and the water push them along.
+        if (move != 0)
+        {
+            rb.velocity = new Vector2(move * speed, rb.velocity.y);
+        }
 
-        // ---- Horizontal movement ----
-        // We move TOWARDS the wanted speed instead of snapping to it, so that
-        // effectors (like the conveyor belt in Level 3) can still push the player.
-        float wantedX = xInput * speed;
-        float rate = (Mathf.Abs(xInput) > 0.01f) ? acceleration : brake;
-        float newX = Mathf.MoveTowards(rb.velocity.x, wantedX, rate * Time.deltaTime);
-        rb.velocity = new Vector2(newX, rb.velocity.y);
+        // ---- 3. Turn the picture the right way round ------------------------
+        // The orc picture is drawn facing left, so we flip it when we go right.
+        // (If the orc ever walks backwards, just swap these two lines around.)
+        if (move > 0) sprite.flipX = true;    // walking right -> flipped
+        if (move < 0) sprite.flipX = false;   // walking left  -> not flipped
 
-        // ---- Jumping ----
-        if (grounded && JumpPressed())
+        // ---- 4. Jump, but only when we are standing on something ------------
+        if (jumpPressed && OnGround())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
 
-        // ---- Wall interaction (Lesson: high friction = cling) ----
-        // While airborne and holding into a wall we slide down slowly.
-        // If something pushes us UP (a conveyor wall / water) we leave it alone.
-        if (!grounded && touchingWall && Mathf.Abs(xInput) > 0.1f && rb.velocity.y < -wallSlideSpeed)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
-        }
-
-        // ---- Keep falling speed sane ----
-        if (rb.velocity.y < -maxFallSpeed)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, -maxFallSpeed);
-        }
-
-        // ---- Safety: if the player falls off the world, treat it as a death ----
-        if (transform.position.y < killY)
+        // ---- 5. If we fall off the world, we die ----------------------------
+        if (transform.position.y < fallLimit)
         {
             Die();
         }
     }
 
-    // Space bar (or W / Up Arrow) jumps.
-    private bool JumpPressed()
+    // Look in a small box just under the player's feet.
+    // If anything solid is in there, we are standing on the ground.
+    private bool OnGround()
     {
-        return Input.GetKeyDown(KeyCode.Space)
-            || Input.GetKeyDown(KeyCode.W)
-            || Input.GetKeyDown(KeyCode.UpArrow);
-    }
+        Vector2 middle = new Vector2(box.bounds.center.x, box.bounds.min.y - 0.1f);
+        Vector2 size = new Vector2(box.bounds.size.x * 0.9f, 0.2f);
 
-    // A small box just under the player's feet.
-    private bool GroundCheck()
-    {
-        if (box == null) return false;
+        Collider2D[] hits = Physics2D.OverlapBoxAll(middle, size, 0f);
 
-        Bounds b = box.bounds;
-        Vector2 centre = new Vector2(b.center.x, b.min.y - 0.05f);
-        Vector2 size = new Vector2(b.size.x * 0.9f, 0.12f);
-
-        Collider2D[] hits = Physics2D.OverlapBoxAll(centre, size, 0f);
-        for (int i = 0; i < hits.Length; i++)
+        foreach (Collider2D hit in hits)
         {
-            if (hits[i] == box) continue;      // ignore our own collider
-            if (hits[i].isTrigger) continue;   // triggers (spikes, pads) are not ground
-            return true;
+            // Ignore our own body, and ignore triggers (spikes, pads, water).
+            if (hit != box && !hit.isTrigger)
+            {
+                return true;
+            }
         }
+
         return false;
     }
 
-    // A small vertical box on both sides of the player.
-    private bool WallCheck()
+    // This runs when the player touches a trigger object (spikes, goal, water).
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (box == null) return false;
-
-        Bounds b = box.bounds;
-        Vector2 size = new Vector2(0.1f, b.size.y * 0.8f);
-        Vector2 left = new Vector2(b.min.x - 0.06f, b.center.y);
-        Vector2 right = new Vector2(b.max.x + 0.06f, b.center.y);
-
-        return SideBlocked(left, size) || SideBlocked(right, size);
-    }
-
-    private bool SideBlocked(Vector2 centre, Vector2 size)
-    {
-        Collider2D[] hits = Physics2D.OverlapBoxAll(centre, size, 0f);
-        for (int i = 0; i < hits.Length; i++)
+        if (other.tag == "Death")   // a spike
         {
-            if (hits[i] == box) continue;
-            if (hits[i].isTrigger) continue;
-            return true;
-        }
-        return false;
-    }
-
-    // ---- Collision Detection (Lesson: OnTriggerEnter2D + Tags + Switch) ----
-    // Fires when the player touches an object that has a Collider2D with
-    // "Is Trigger" ticked.
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        switch (collision.tag)
-        {
-            case "Death":
-                Die();
-                break;
-
-            case "Finish":
-                GoToNextLevel();
-                break;
-        }
-    }
-
-    // ---- Level Goal: load the next stage ----
-    private void GoToNextLevel()
-    {
-        if (leavingLevel) return;
-
-        if (string.IsNullOrEmpty(nextLevel))
-        {
-            // No next level set, so just restart this one.
             Die();
-            return;
         }
-
-        if (Application.CanStreamedLevelBeLoaded(nextLevel))
+        else if (other.tag == "Finish")   // the goal
         {
-            leavingLevel = true;
-            SceneManager.LoadScene(nextLevel);
-        }
-        else
-        {
-            Debug.LogWarning("Scene '" + nextLevel + "' is not in File > Build Settings yet.");
+            WinLevel();
         }
     }
 
-    // ---- Death: print the message and restart this level ----
-    public void Die()
+    // Restart the level we are already in.
+    void Die()
     {
-        if (leavingLevel) return;
-        leavingLevel = true;
+        if (leaving) return;
+        leaving = true;
 
-        Debug.Log("Player Has Died");
+        Debug.Log("Player has died");
 
-        string thisLevel = SceneManager.GetActiveScene().name;
-
-        if (Application.CanStreamedLevelBeLoaded(thisLevel))
-        {
-            SceneManager.LoadScene(thisLevel);
-        }
-        else
-        {
-            leavingLevel = false;
-            Debug.LogWarning("Scene '" + thisLevel + "' is not in File > Build Settings yet.");
-        }
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Small helper so other scripts (bounce pads) can find the rigidbody.
-    public Rigidbody2D Body()
+    // Load the next level.
+    void WinLevel()
     {
-        if (rb == null) rb = GetComponent<Rigidbody2D>();
-        return rb;
+        if (leaving) return;
+        leaving = true;
+
+        SceneManager.LoadScene(nextLevel);
     }
 }

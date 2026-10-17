@@ -3,68 +3,47 @@ using UnityEngine;
 // ============================================================================
 //  Geo Quest - Colour Door
 // ----------------------------------------------------------------------------
-//  A coloured wall that only opens for the player who is wearing the SAME colour.
+//  A coloured wall that only opens when the player is wearing the SAME colour.
 //
-//  requiredColor:  0 = colour 1 (key 1)
-//                  1 = colour 2 (key 2)
-//                  2 = colour 3 (key 3)
+//  requiredColor:  0 = red   (press 1)
+//                  1 = blue  (press 2)
+//                  2 = green (press 3)
 //
-//  Drag the Player's GeoColorSwitcher component into the "Player" slot in the
-//  Inspector. Nothing is spawned - the door already lives in the scene and only
-//  turns its own collider on / off.
+//  Drag the Player into the "Player" box in the Inspector.
+//
+//  Nothing is created here. The door is already in the scene, and this script
+//  only turns its wall on and off.
 // ============================================================================
-[RequireComponent(typeof(BoxCollider2D))]
 public class GeoColorGate : MonoBehaviour
 {
-    [Tooltip("0 = red (key 1),  1 = blue (key 2),  2 = green (key 3)")]
-    public int requiredColor = 0;
+    public int requiredColor = 0;        // 0 = red, 1 = blue, 2 = green
+    public GeoColorSwitcher player;      // the player's colour switcher
 
-    [Tooltip("Drag the Player here (its GeoColorSwitcher component).")]
-    public GeoColorSwitcher player;
-
-    [Header("Looks")]
-    public float closedAlpha = 0.8f;
-    public float openAlpha = 0.12f;
-
-    private BoxCollider2D gateCollider;
-    private SpriteRenderer gateSprite;
-    private Color baseColor = Color.white;
-    private bool isOpen;
+    private BoxCollider2D doorWall;      // the invisible wall
+    private SpriteRenderer sprite;       // the coloured picture
 
     void Start()
     {
-        gateCollider = GetComponent<BoxCollider2D>();
+        doorWall = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
 
-        gateSprite = GetComponent<SpriteRenderer>();
-        if (gateSprite != null) baseColor = gateSprite.color;
-
-        // Make sure we start in a known state.
-        Apply(false);
+        Open(false);      // start closed
     }
 
     void Update()
     {
-        bool shouldOpen = player != null && player.CurrentColorIndex == requiredColor;
+        // Is the player wearing the colour this door wants?
+        bool sameColour = player != null && player.CurrentColorIndex == requiredColor;
 
-        if (shouldOpen != isOpen)
-        {
-            Apply(shouldOpen);
-        }
+        Open(sameColour);
     }
 
-    private void Apply(bool open)
+    // Open the door = switch the wall off and make the picture see-through.
+    void Open(bool open)
     {
-        isOpen = open;
+        doorWall.enabled = !open;
 
-        if (gateCollider != null)
-        {
-            gateCollider.enabled = !open;
-        }
-
-        if (gateSprite != null)
-        {
-            gateSprite.color = new Color(baseColor.r, baseColor.g, baseColor.b,
-                                         open ? openAlpha : closedAlpha);
-        }
+        sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b,
+                                 open ? 0.25f : 1f);
     }
 }

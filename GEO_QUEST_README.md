@@ -10,31 +10,34 @@ pad, goal, belt and water block is sitting there, ready to select and move by ha
 
 | File | What it is |
 |---|---|
-| `Assets/Geo_Quest/Scenes/Level_1.unity` | **Level 1 — Basic Movement** (rebuilt) |
-| `Assets/Geo_Quest/Scenes/Level_2.unity` | **Level 2 — Bounce Pads, Walls & Spikes** (rebuilt) |
-| `Assets/Geo_Quest/Scenes/Level_3.unity` | **Level 3 — Conveyor Belt, Water & Colour Doors** (new) |
-| `Assets/Geo_Quest/Scenes/Geo_Win.unity` | Win screen (new) |
-| `Assets/Geo_Quest/Scripts/GeoController.cs` | Player: move, jump, wall slide, spikes, goal, fall death |
+| `Assets/Geo_Quest/Scenes/Level_0_Tutorial.unity` | **Tutorial** — the very first, very easy level (new) |
+| `Assets/Geo_Quest/Scenes/Level_1.unity` | **Level 1 — Basic Movement** |
+| `Assets/Geo_Quest/Scenes/Level_2.unity` | **Level 2 — Bounce Pads, Walls & Spikes** |
+| `Assets/Geo_Quest/Scenes/Level_3.unity` | **Level 3 — Conveyor Belt, Water & Colour Doors** |
+| `Assets/Geo_Quest/Scenes/Geo_Win.unity` | Win screen — waits, then restarts the game |
+| `Assets/Geo_Quest/Scripts/GeoController.cs` | Player: move, jump, turn around, spikes, goal, fall death |
 | `Assets/Geo_Quest/Scripts/GeoBouncePad.cs` | Bounce pad launcher |
 | `Assets/Geo_Quest/Scripts/GeoColorSwitcher.cs` | Keys **1 / 2 / 3** colour switching |
 | `Assets/Geo_Quest/Scripts/GeoColorGate.cs` | Coloured door that opens for the matching colour |
 | `Assets/Geo_Quest/Scripts/GeoCameraFollow.cs` | Camera follows the player |
-| `Assets/Geo_Quest/Scripts/GeoWinScreen.cs` | Space restarts from Level 1 |
+| `Assets/Geo_Quest/Scripts/GeoWinScreen.cs` | Restarts from the first level after you win |
 | `Assets/Geo_Quest/Assets/PlayerMaterial.physicsMaterial2D` | High friction → the player grips walls/belts |
 
 Also changed: `ProjectSettings/TagManager.asset` (added the **Player** and **Finish**
 tags — *Finish was missing, which is why level transitions were broken before*) and
-`ProjectSettings/EditorBuildSettings.asset` (Level_1 → Level_2 → Level_3 → Geo_Win).
+`ProjectSettings/EditorBuildSettings.asset`
+(Tutorial → Level_1 → Level_2 → Level_3 → Geo_Win).
 
 ---
 
 ## Controls
 
-* **A / D** or **← / →** — move
+* **A / D** or **← / →** — move (the orc turns to face the way it walks)
 * **Space** (or W / ↑) — jump
 * **1 / 2 / 3** — switch colour (red / blue / green, colour values scaled 0–1)
 * Touching a spike or falling off the world reloads the level
 * Touching the green goal loads the next level
+* On the win screen: **Space** replays, or it restarts by itself after 8 seconds
 
 ---
 
@@ -46,7 +49,7 @@ tags — *Finish was missing, which is why level transitions were broken before*
 | **Spikes (10%)** | The `Spike` objects (red triangles, tag `Death`) — Levels 2 & 3 |
 | **Bounce pad (10%)** | The cyan `BouncePad` objects with `GeoBouncePad.cs` — Level 2 |
 | **Level goal (10%)** | The green `Goal` objects (tag `Finish`) in every level |
-| **Three unique levels (30%)** | Level_1 (pure platforming), Level_2 (bounce pads + walls + spikes), Level_3 (belt + water + colours) |
+| **Three unique levels (30%)** | Level_1 (pure platforming), Level_2 (bounce pads + walls + spikes), Level_3 (belt + water + colours) — plus the tutorial |
 | **Buoyancy / Platform / Surface Effector (15%)** | **BuoyancyEffector2D** on `Water` and **SurfaceEffector2D** on `ConveyorBelt` — both in Level_3 |
 | **Colour switching (15%)** | `GeoColorSwitcher.cs` on the Player (keys 1/2/3) plus the three `ColourDoor_*` objects it opens |
 
@@ -56,27 +59,18 @@ them walk through.
 
 ---
 
-## Important: how to open it
+## Colours
 
-The Unity Editor was **running while these files were written**, so please:
-
-1. **Close Unity without saving anything** (if it asks to save an open scene, say no).
-2. Re-open the project from Unity Hub.
-
-That guarantees the new scenes, tags and Build Settings are all picked up.
-
-If Unity ever asks whether to reload a scene that "changed on disk", choose
-**Reload** (do not overwrite it with the in-memory copy).
-
-The two original scene files were backed up to
-`%TEMP%\opencode\geobuild\backup\` before being rebuilt, just in case.
+Every block is drawn with a **solid, fully opaque** colour (alpha = 1), so nothing
+looks washed out or see-through. The only see-through object is the water, which is
+meant to look like water.
 
 ---
 
 ## Making the .exe
 
-1. `File ▸ Build Settings` — the four Geo Quest scenes are already listed and
-   enabled, with **Level_1** first.
+1. `File ▸ Build Settings` — the five Geo Quest scenes are already listed and
+   enabled, with **Level_0_Tutorial** first.
 2. Platform: **Windows, Mac, Linux Standalone** → Target Platform **Windows**.
 3. `Project Settings ▸ Player` — set Fullscreen Mode to **Windowed**, resolution
    **1024 × 576**, tick **Resizable Window**.
